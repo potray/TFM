@@ -6,7 +6,8 @@ using Leap;
 public class IndexDetection : MonoBehaviour {
 
     // Enums for checking.
-    private enum Objects {Start, End};
+    private enum Objects { Start, End, RealWorldObject };
+    public enum GameModes { StraightLine, TouchObject };
 
     // Leap motion controller.
 
@@ -19,6 +20,8 @@ public class IndexDetection : MonoBehaviour {
     public GameObject end;
     public GameObject upperGuide;
     public GameObject lowerGuide;
+    public GameObject yesSphere;
+    public GameObject noSphere;
     public Text text;
 
     // Strings.
@@ -35,10 +38,12 @@ public class IndexDetection : MonoBehaviour {
 
     // Adjustable attributes.
 
-    private double distanceDelta = 0.08;
+    public double distanceDelta = 0.08;
     private double xDelta = 1;
 
     // Game play attributes.
+
+    public GameModes gameMode;
 
     private bool checkingForStart = true;
     private bool checkingForEnd = false;
@@ -48,8 +53,11 @@ public class IndexDetection : MonoBehaviour {
     private float startTimer = 3;
     private float time = 0;
     private float previousX;
-    
-    
+
+    private Vector3 objectInRealWorldPosition = new Vector3(-0.1f, 2.5f, 2.0f);
+    private Vector3 fingerPosition;
+
+
     // Attributes that are loaded at start to improve performance.
 
     private Vector3 startPosition;
@@ -67,18 +75,29 @@ public class IndexDetection : MonoBehaviour {
 
         Debug.Log("Success!");
 
-        // Set up instructions text.
-        text.text = begginingInstructions;
+        switch (gameMode)
+        {
+            case GameModes.StraightLine:
+                // Set up instructions text.
+                text.text = begginingInstructions;
 
-        // Set up start and end transform so we avoid checking them every time.
-        startPosition = start.transform.position;
-        endPosition = end.transform.position;
+                // Set up start and end transform so we avoid checking them every time.
+                startPosition = start.transform.position;
+                endPosition = end.transform.position;
 
-        // Set up the middle of the guides.
-        lineCenterY = upperGuide.transform.position.y - upperGuide.transform.position.y;
+                // Set up the middle of the guides.
+                lineCenterY = upperGuide.transform.position.y - upperGuide.transform.position.y;
 
-        // The first X is the start one
-        previousX = startPosition.x;
+                // The first X is the start one
+                previousX = startPosition.x;
+
+                break;
+            case GameModes.TouchObject:
+                
+                break;
+        }
+
+        
     }
 	
 	// Update is called once per frame
@@ -96,79 +115,111 @@ public class IndexDetection : MonoBehaviour {
 
         Finger index = rightHand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0];
 
-        // Set the sphere position to the index position.
-        sphere.transform.position = index.TipPosition.ToUnityScaled();
-        sphere.transform.position = new Vector3 (sphere.transform.position.x*20, sphere.transform.position.y*20, sphere.transform.position.z*20);
-
-        // Check for test to start.
-        if (checkingForStart)
+        switch (gameMode)
         {
-            if (checkDistance(Objects.Start))
-            {
-                // Continue or start countdown.
-                countDownStarted = true;
+            case GameModes.StraightLine:
+                // Set the sphere position to the index position.
+                sphere.transform.position = index.TipPosition.ToUnityScaled();
+                sphere.transform.position = new Vector3(sphere.transform.position.x * 20, sphere.transform.position.y * 20, sphere.transform.position.z * 20);
 
-                // Set the text.
-                startTimer -= Time.deltaTime;
-
-                if (startTimer < 0)
+                // Check for test to start.
+                if (checkingForStart)
                 {
-                    startTest();
+                    if (checkDistance(Objects.Start))
+                    {
+                        // Continue or start countdown.
+                        countDownStarted = true;
+
+                        // Set the text.
+                        startTimer -= Time.deltaTime;
+
+                        if (startTimer < 0)
+                        {
+                            startTest();
+                        }
+                        else
+                        {
+                            if (startTimer < 1)
+                            {
+                                secondsToStart = 1;
+                            }
+                            else if (startTimer < 2)
+                            {
+                                secondsToStart = 2;
+                            }
+
+                            text.text = begginingTest + " " + secondsToStart.ToString();
+                        }
+                    }
+                    else if (countDownStarted)
+                    {
+                        // Restart the countdown.
+                        startTimer = 3;
+                        secondsToStart = 3;
+                        text.text = rebootBegginingTest;
+                        countDownStarted = false;
+                    }
+                }
+
+                // Check for test to end.
+                if (checkingForEnd)
+                {
+                    if (checkDistance(Objects.End))
+                    {
+                        endTest();
+                    }
+                    else
+                    {
+                        // Add time.
+                        time += Time.deltaTime;
+
+                        // If the ball traveled enough distance in the X axis, check Y distance.
+                        float sphereX = sphere.transform.position.x;
+
+                        if (sphereX > (previousX + xDelta))
+                        {
+                            previousX = sphereX;
+
+                            // Add Y distance to the center if the distance is big enough.
+
+                            float sphereY = sphere.transform.position.y;
+                            float sphereDistanceToCenter = Mathf.Abs(sphereY - lineCenterY);
+
+                            if (sphereDistanceToCenter > distanceDelta)
+                            {
+                                totalDistanceToCenter += sphereDistanceToCenter;
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case GameModes.TouchObject:
+                // Get the index position un "real Unity coordinates"
+                fingerPosition = index.TipPosition.ToUnityScaled();
+                fingerPosition = new Vector3(fingerPosition.x * 20, fingerPosition.y * 20, fingerPosition.z * 20);
+
+                if (Input.GetButtonDown("Jump"))
+                {
+                    Debug.Log(fingerPosition);
+                }
+
+                    
+                // Check if the user is touching the real world object.
+                if (checkDistance(Objects.RealWorldObject))
+                {
+                    yesSphere.SetActive(true);
+                    noSphere.SetActive(false);
                 }
                 else
                 {
-                    if (startTimer < 1)
-                    {
-                        secondsToStart = 1;
-                    }
-                    else if (startTimer < 2)
-                    {
-                        secondsToStart = 2;
-                    }
-
-                    text.text = begginingTest + " " + secondsToStart.ToString();
+                    yesSphere.SetActive(false);
+                    noSphere.SetActive(true);
                 }
-            } else if (countDownStarted)
-            {
-                // Restart the countdown.
-                startTimer = 3;
-                secondsToStart = 3;
-                text.text = rebootBegginingTest;
-                countDownStarted = false;
-            }
+                break;
         }
 
-        // Check for test to end.
-        if (checkingForEnd)
-        {
-            if (checkDistance(Objects.End))
-            {
-                endTest();
-            }
-            else
-            {
-                // Add time.
-                time += Time.deltaTime;
-
-                // If the ball traveled enough distance in the X axis, check Y distance.
-                float sphereX = sphere.transform.position.x;
-
-                if (sphereX > (previousX + xDelta))
-                {
-                    previousX = sphereX;
-
-                    // Add Y distance to the center if the distance is big enough.
-
-                    float sphereY = sphere.transform.position.y;
-                    float sphereDistanceToCenter = Mathf.Abs(sphereY - lineCenterY);
-
-                    if (sphereDistanceToCenter > distanceDelta)
-                    {
-                        totalDistanceToCenter += sphereDistanceToCenter;
-                    }
-                }
-            }
-        }
+        
     }
 
     private bool checkDistance (Objects obj)
@@ -186,18 +237,40 @@ public class IndexDetection : MonoBehaviour {
                 distanceToCheck = endPosition;
                 break;
             // This default block is just for the compiler. It shouldn't execute ever.
+            case Objects.RealWorldObject:
+                distanceToCheck = objectInRealWorldPosition;
+                break;
             default:
                 distanceToCheck = startPosition;
                 break;
         }
 
         // Check x and y distance to the object.
-        float xDistance = sphere.transform.position.x - distanceToCheck.x;
-        float yDistance = sphere.transform.position.y - distanceToCheck.y;
-        
-        if (Mathf.Abs(xDistance) > distanceDelta || Mathf.Abs(yDistance) > distanceDelta)
+
+        float xDistance = 0, yDistance = 0, zDistance = 0;
+
+        switch (gameMode)
         {
-            isInRange = false;
+            case GameModes.StraightLine:
+                xDistance = sphere.transform.position.x - distanceToCheck.x;
+                yDistance = sphere.transform.position.y - distanceToCheck.y;
+
+                if (Mathf.Abs(xDistance) > distanceDelta || Mathf.Abs(yDistance) > distanceDelta)
+                {
+                    isInRange = false;
+                } 
+
+                break;
+            case GameModes.TouchObject:
+                xDistance = fingerPosition.x - distanceToCheck.x;
+                yDistance = fingerPosition.y - distanceToCheck.y;
+                zDistance = fingerPosition.z - distanceToCheck.z;
+
+                if (Mathf.Abs(xDistance) > distanceDelta || Mathf.Abs(yDistance) > distanceDelta || Mathf.Abs(zDistance) > distanceDelta)
+                {
+                    isInRange = false;
+                }
+                break;
         }
 
         return isInRange;
