@@ -29,18 +29,26 @@ public class GUIHandler : MonoBehaviour {
             infoText.text = "";
 
         }
-        catch (FormatException ex)
+        catch 
         {
             infoText.text = "Please enter a valid code.";
         }
 
         if (playerId != -1)
         {
-            //TODO change to the real one
-            string debugUrl = "http://127.0.0.1:8000/patients/validateCode?code=" + playerId;
-            Debug.Log(debugUrl);
+            string url = "";
+            if (Settings.debug)
+            {
+                url += "http://127.0.0.1:8000";
+            }
+            else
+            {
+                url += "http://tfmheroku.herokuapp.com";
+            }
+            url += "/patients/validateCode?code=" + playerId;
+            Debug.Log(url);
 
-            var www = new WWW(debugUrl);
+            var www = new WWW(url);
 
             // Wait for request to complete
             StartCoroutine(WaitForRequest(www));
