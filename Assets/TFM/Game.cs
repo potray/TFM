@@ -2,7 +2,6 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.IO;
-using Leap;
 using System.Collections.Generic;
 using SimpleJSON;
 
@@ -10,8 +9,7 @@ public class Game : MonoBehaviour {
 
 
     // Leap motion controller.
-
-    private Controller controller;
+    HandControlPlatformAPI controller;
 
     // Gameobjects from scene.
 
@@ -40,7 +38,11 @@ public class Game : MonoBehaviour {
     private List <GameObject> redHooks, blueHooks, redSticks, blueSticks;
 
     // Strings
-    private string gameEnding = "Game finished!";
+    private string instructions = "Touch the blue hook, don't touch the red ones!";
+    private string connectDevice = "Please connect the device or press alt+F4 to exit.";
+    private string restarted = "The test had to be restarted. Please begin.";
+    private string gameEnding = "Game finished! Sending data to the server.";
+    private string gameEnded = "Data sent, returning to previous screen.";
     private string url = "http://tfmheroku.herokuapp.com/sendTestResult";
     private string debugurl = "http://127.0.0.1:8000/sendTestResult";
 
@@ -49,17 +51,45 @@ public class Game : MonoBehaviour {
     private List<double> times;
 
     private double time;
+    private bool deviceWasDisconnected = false;
+    private bool instructionsShown = false;
 
     // Use this for initialization
     void Start () {
         // Set up controller.
-        controller = new Controller();
+        controller = new LeapMotionHandControl();
+        controller.init();
 
-        while (!controller.IsConnected) { }
+        // Show a warning message if the device isn't connected. Show instructions when the device is connected.
+        if (!controller.deviceConnected())
+        {
+            while (!controller.deviceConnected())
+            {
+                text.text = connectDevice;
+            }
+            text.text = instructions;
+        }
 
-        Debug.Log("Success!");
+        Init();
 
-        // Set up attributes.
+        if (Settings.debug)
+            url = debugurl;
+    }
+    
+    // This method resets the game.
+    private void Init() {
+        if (deviceWasDisconnected)
+        {
+            Debug.Log("Device was disconnected");
+            if (!instructionsShown)
+            {
+                instructionsShown = true;
+                text.text = instructions;
+            }
+            else
+                text.text = restarted;
+            deviceWasDisconnected = false;
+        }
         lastHook = -1;
         totalHooks = -1;
 
@@ -83,51 +113,64 @@ public class Game : MonoBehaviour {
         blueSticks.Add(blueRightStickWithHook);
         blueSticks.Add(blueCenterStickWithHook);
 
-
         fingerPositions = new List<List<Vector3>>();
-        for(int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
         {
             fingerPositions.Add(new List<Vector3>());
         }
         times = new List<double>();
         time = 0;
 
-        if (Settings.debug)
-            url = debugurl;
-
+        // Hide all the blue sticks, show all the red sticks, in case the game was restarted.
+        foreach (GameObject stick in blueSticks)
+        {
+            stick.SetActive(false);
+        }
+        foreach (GameObject stick in redSticks)
+        {
+            stick.SetActive(true);
+        }
         // Start the game
         selectNextHook();
     }
+
 	
 	// Update is called once per frame
 	void Update () {
-        // Get the frame, the right hand and it's index.
-        Frame frame = controller.Frame();
-
-        Hand rightHand = frame.Hands.Rightmost;
-
-        // Get all the fingers
-        Pointable index = rightHand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0];
-        Pointable thumb = rightHand.Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0];
-        Pointable middle = rightHand.Fingers.FingerType(Finger.FingerType.TYPE_MIDDLE)[0];
-        Pointable ring = rightHand.Fingers.FingerType(Finger.FingerType.TYPE_RING)[0];
-        Pointable pinky = rightHand.Fingers.FingerType(Finger.FingerType.TYPE_PINKY)[0];
-        
-        // Set the sphere position to the index position.
-        sphere.transform.position = new Vector3(- index.TipPosition.x / 10, index.TipPosition.y / 10 + inGamePlatform.transform.position.y + inGameLeapMotion.transform.position.y, index.TipPosition.z / 10 + inGameLeapMotion.transform.position.z);
-
-        // Check if the hand is in Leap's field of vision.
-        if (index.TipPosition.x != 0 && index.TipPosition.y != 0 && index.TipPosition.z != 0 && totalHooks != maxHooks)
-        {
-            // We have an index, so we add the positions of all fingers and the type to the lists.
-            time += Time.deltaTime;
-            fingerPositions[0].Add(thumb.TipPosition.ToUnity());
-            fingerPositions[1].Add(index.TipPosition.ToUnity());
-            fingerPositions[2].Add(middle.TipPosition.ToUnity());
-            fingerPositions[3].Add(ring.TipPosition.ToUnity());
-            fingerPositions[4].Add(pinky.TipPosition.ToUnity());
-            times.Add(time);
+        // If the controller was disconnected, reset the game.
+        if (!controller.deviceConnected())
+        {        
+            deviceWasDisconnected = true;
+            text.text = connectDevice;
         }
+        else
+        {
+            if (deviceWasDisconnected)
+            {
+                Init();
+            }
+            // If we are here, the instructions were shown.
+            instructionsShown = true;
+            // Tell the controller to update.
+            controller.update();
+            // Set the sphere position to the index position.
+            sphere.transform.position = new Vector3(- controller.getIndexTipPosition().x / 10,
+                controller.getIndexTipPosition().y / 10 + inGamePlatform.transform.position.y + inGameLeapMotion.transform.position.y,
+               - controller.getIndexTipPosition().z / 10 + inGameLeapMotion.transform.position.z);
+
+            // Check if the hand is in Leap's field of vision.
+            if (controller.getIndexTipPosition().x != 0 && controller.getIndexTipPosition().y != 0 && controller.getIndexTipPosition().z != 0 && totalHooks != maxHooks)
+            {
+                // We have an index, so we add the positions of all fingers and the type to the lists.
+                time += Time.deltaTime;
+                fingerPositions[0].Add(controller.getThumbTipPosition());
+                fingerPositions[1].Add(controller.getIndexTipPosition());
+                fingerPositions[2].Add(controller.getMiddleTipPosition());
+                fingerPositions[3].Add(controller.getRingTipPosition());
+                fingerPositions[4].Add(controller.getPinkyTipPosition());
+                times.Add(time);
+            }
+        }        
     }
 
     void selectNextHook ()
@@ -141,7 +184,6 @@ public class Game : MonoBehaviour {
         }
 
         totalHooks++;
-        Debug.Log(totalHooks);
         
         // Swap hooks.
         if (lastHook != -1) // Skip the first previous swap
@@ -232,6 +274,7 @@ public class Game : MonoBehaviour {
     private IEnumerator WaitForRequest(WWW www)
     {
         yield return www;
+        text.text = gameEnded;
 
         if (www.error == null)
         {

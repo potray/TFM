@@ -3,21 +3,59 @@ using System.Collections;
 using UnityEngine.UI;
 using System;
 using SimpleJSON;
+using Leap;
 
 public class GUIHandler : MonoBehaviour {
 
     public Text inputText;
     public Text infoText;
+    public Text warningText;
     public Button logInButton;
     public Button confirmButton;
     public Canvas loginCanvas;
     public Canvas selectGameCanvas;
     private int playerId;
 
+    private bool loginCanvasHiddenByController;
+    private bool selectGameCanvasHiddenByController;
+    private bool deviceWasDisconnectedAtStart;
+
+    private Controller controller;
+
     public void Start()
     {
         HideButton(confirmButton);
         playerId = -1;
+
+        // Get Leap Motion info.
+        controller = new Controller();
+
+        loginCanvasHiddenByController = false;
+        selectGameCanvasHiddenByController = false;
+
+        // Show warning if device isn't connected.
+        if (!controller.IsConnected)
+        {
+            warningText.text = "Please connect the Leap Motion device to your computer.";
+            loginCanvas.gameObject.SetActive(false);
+            deviceWasDisconnectedAtStart = true;
+        }
+        else {
+            deviceWasDisconnectedAtStart = false;
+        }
+    }
+
+    // Check the Leap Motion Device.
+    public void Update()
+    {
+        if (controller.IsConnected)
+        {
+            OnLeapMotionConnect();
+        }
+        else
+        {
+            OnLeapMotionDisconnect();
+        }
     }
 
     public void LogIn()
@@ -70,6 +108,18 @@ public class GUIHandler : MonoBehaviour {
         selectGameCanvas.gameObject.SetActive(true);
     }
 
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
+
+    public void Back()
+    {
+        loginCanvas.gameObject.SetActive(true);
+        selectGameCanvas.gameObject.SetActive(false);
+    }
+
+
     private void HideButton (Button button)
     {
         button.gameObject.SetActive(false);
@@ -83,6 +133,44 @@ public class GUIHandler : MonoBehaviour {
     public void LaunchGame (String game)
     {
         Application.LoadLevel(game);
+    }
+
+    // Hide the warning text and show every canvas that was hidden when the device was disconnected.
+    public void OnLeapMotionConnect()
+    {
+        Debug.Log("Connected!");
+        warningText.text = "";
+
+        if (loginCanvasHiddenByController || deviceWasDisconnectedAtStart)
+        {
+            deviceWasDisconnectedAtStart = false;
+            loginCanvasHiddenByController = false;
+            loginCanvas.gameObject.SetActive(true);
+        }
+
+        if (selectGameCanvasHiddenByController)
+        {
+            selectGameCanvasHiddenByController = false;
+            selectGameCanvas.gameObject.SetActive(true);
+        }
+    }
+
+    
+    // Hide every canvas that wasn't hidden and show warning text.
+    public void OnLeapMotionDisconnect() {
+        Debug.Log("Disconnected!");
+        warningText.text = "Leap Motion disconnected, please reconnect it.";
+        if (loginCanvas.gameObject.activeSelf)
+        {
+            loginCanvasHiddenByController = true;
+            loginCanvas.gameObject.SetActive(false);
+        }
+
+        if (selectGameCanvas.gameObject.activeSelf)
+        {
+            selectGameCanvasHiddenByController = true;
+            selectGameCanvas.gameObject.SetActive(false);
+        }
     }
 
     private IEnumerator WaitForRequest (WWW www)
@@ -100,7 +188,7 @@ public class GUIHandler : MonoBehaviour {
 
             if (ok)
             {
-                infoText.text = "Loggin in as " + firstName + " " + lastName + ". Please confirm or enter a new code.";
+                infoText.text = "Logging in as " + firstName + " " + lastName + ". Please confirm or enter a new code.";
                 HideButton(logInButton);
                 ShowButton(confirmButton);
             }
@@ -116,3 +204,5 @@ public class GUIHandler : MonoBehaviour {
         }
     }
 }
+
+
