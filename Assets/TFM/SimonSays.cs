@@ -49,6 +49,7 @@ public class SimonSays : MonoBehaviour {
     // Positions of the fingers
     private List<List<Vector3>> fingerPositions;
     private List<double> times;
+    private List<double> touchTimes;
 
     private double time;
     private bool deviceWasDisconnected = false;
@@ -115,6 +116,7 @@ public class SimonSays : MonoBehaviour {
             fingerPositions.Add(new List<Vector3>());
         }
         times = new List<double>();
+        touchTimes = new List<double>();
         time = 0;
 
         // Hide all the blue sticks, show all the red sticks, in case the game was restarted.
@@ -241,8 +243,16 @@ public class SimonSays : MonoBehaviour {
             handPositionsString += "}}";
         }
 
+        // Add touch times
+        handPositionsString += "\"touchTimes\":{";
+
+        for (int i = 0; i < touchTimes.Count; i++)
+        {
+            handPositionsString += i.ToString() + ":" + touchTimes[i].ToString() + ", ";
+        }
+
         // Add time
-        handPositionsString += "\"times\":{";
+        handPositionsString += "}\"times\":{";
 
         // Add times
         for (int i = 0; i < times.Count; i++)
@@ -298,6 +308,7 @@ public class SimonSays : MonoBehaviour {
     {
         if (blueHooks.IndexOf(obj) == lastHook)
         {
+            touchTimes.Add(time);
             selectNextHook();
         }
     }
