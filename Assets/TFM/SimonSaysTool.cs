@@ -5,7 +5,7 @@ using System.IO;
 using System.Collections.Generic;
 using SimpleJSON;
 
-public class SimonSaysStick : MonoBehaviour {
+public class SimonSaysTool : MonoBehaviour {
 
 
     // Leap motion controller.
@@ -148,12 +148,12 @@ public class SimonSaysStick : MonoBehaviour {
             // Tell the controller to update.
             controller.Update();
             // Set the sphere position to the index position.
-            sphere.transform.position = new Vector3(- controller.GetIndexTipPosition().x / 10,
-                controller.GetIndexTipPosition().y / 10 + inGameLeapMotion.transform.position.y/2,
-               - controller.GetIndexTipPosition().z / 10 + inGameLeapMotion.transform.position.z);
+            sphere.transform.position = new Vector3(- controller.GetToolTipPosition().x / 10,
+                controller.GetToolTipPosition().y / 10 + inGameLeapMotion.transform.position.y/2,
+               - controller.GetToolTipPosition().z / 10 + inGameLeapMotion.transform.position.z);
 
-            // Check if the hand is in Leap's field of vision.
-            if (controller.GetIndexTipPosition().x != 0 && controller.GetIndexTipPosition().y != 0 && controller.GetIndexTipPosition().z != 0 && totalHooks != maxHooks)
+            // Check if the tool is in Leap's field of vision.
+            if (controller.GetToolTipPosition().x != 0 && controller.GetToolTipPosition().y != 0 && controller.GetToolTipPosition().z != 0 && totalHooks != maxHooks)
             {
                 // We have an index, so we add the positions of all fingers and the type to the lists.
                 time += Time.deltaTime;
