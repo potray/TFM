@@ -5,7 +5,7 @@ using System.IO;
 using System.Collections.Generic;
 using SimpleJSON;
 
-public class Game : MonoBehaviour {
+public class SimonSays : MonoBehaviour {
 
 
     // Leap motion controller.
@@ -42,7 +42,7 @@ public class Game : MonoBehaviour {
     private string connectDevice = "Please connect the device or press alt+F4 to exit.";
     private string restarted = "The test had to be restarted. Please begin.";
     private string gameEnding = "Game finished! Sending data to the server.";
-    private string gameEnded = "Data sent, returning to previous screen.";
+    private string gameEnded = "Data sent, returning to previous screen...";
     private string url = "http://tfmheroku.herokuapp.com/sendTestResult";
     private string debugurl = "http://127.0.0.1:8000/sendTestResult";
 
@@ -58,16 +58,12 @@ public class Game : MonoBehaviour {
     void Start () {
         // Set up controller.
         controller = new LeapMotionHandControl();
-        controller.init();
+        controller.Init();
 
         // Show a warning message if the device isn't connected. Show instructions when the device is connected.
-        if (!controller.deviceConnected())
+        if (!controller.DeviceConnected())
         {
-            while (!controller.deviceConnected())
-            {
-                text.text = connectDevice;
-            }
-            text.text = instructions;
+            text.text = connectDevice;
         }
 
         Init();
@@ -138,7 +134,7 @@ public class Game : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         // If the controller was disconnected, reset the game.
-        if (!controller.deviceConnected())
+        if (!controller.DeviceConnected())
         {        
             deviceWasDisconnected = true;
             text.text = connectDevice;
@@ -152,22 +148,22 @@ public class Game : MonoBehaviour {
             // If we are here, the instructions were shown.
             instructionsShown = true;
             // Tell the controller to update.
-            controller.update();
+            controller.Update();
             // Set the sphere position to the index position.
-            sphere.transform.position = new Vector3(- controller.getIndexTipPosition().x / 10,
-                controller.getIndexTipPosition().y / 10 + inGamePlatform.transform.position.y + inGameLeapMotion.transform.position.y,
-               - controller.getIndexTipPosition().z / 10 + inGameLeapMotion.transform.position.z);
+            sphere.transform.position = new Vector3(- controller.GetIndexTipPosition().x / 10,
+                controller.GetIndexTipPosition().y / 10 + inGameLeapMotion.transform.position.y/2,
+               - controller.GetIndexTipPosition().z / 10 + inGameLeapMotion.transform.position.z);
 
             // Check if the hand is in Leap's field of vision.
-            if (controller.getIndexTipPosition().x != 0 && controller.getIndexTipPosition().y != 0 && controller.getIndexTipPosition().z != 0 && totalHooks != maxHooks)
+            if (controller.GetIndexTipPosition().x != 0 && controller.GetIndexTipPosition().y != 0 && controller.GetIndexTipPosition().z != 0 && totalHooks != maxHooks)
             {
                 // We have an index, so we add the positions of all fingers and the type to the lists.
                 time += Time.deltaTime;
-                fingerPositions[0].Add(controller.getThumbTipPosition());
-                fingerPositions[1].Add(controller.getIndexTipPosition());
-                fingerPositions[2].Add(controller.getMiddleTipPosition());
-                fingerPositions[3].Add(controller.getRingTipPosition());
-                fingerPositions[4].Add(controller.getPinkyTipPosition());
+                fingerPositions[0].Add(controller.GetThumbTipPosition());
+                fingerPositions[1].Add(controller.GetIndexTipPosition());
+                fingerPositions[2].Add(controller.GetMiddleTipPosition());
+                fingerPositions[3].Add(controller.GetRingTipPosition());
+                fingerPositions[4].Add(controller.GetPinkyTipPosition());
                 times.Add(time);
             }
         }        
@@ -284,6 +280,17 @@ public class Game : MonoBehaviour {
         {
             Debug.Log("Error! " + www.error);
         }
+
+        StartCoroutine(GoToStartScreen());
+    }
+
+    private IEnumerator GoToStartScreen()
+    {
+        yield return new WaitForSeconds(3);
+
+        // Tell the main level to load de "select test" screen.
+        PlayerPrefs.SetInt("LoadLevel", 1);
+        Application.LoadLevel("main");
     }
 
     // This is called by the sphere whenever it touches an object.

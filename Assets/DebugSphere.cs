@@ -3,7 +3,7 @@ using System.Collections;
 
 public class DebugSphere : MonoBehaviour {
 
-    public Game game;
+    public SimonSays game;
 
 	// Use this for initialization
 	void Start () {

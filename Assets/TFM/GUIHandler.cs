@@ -20,7 +20,7 @@ public class GUIHandler : MonoBehaviour {
     private bool selectGameCanvasHiddenByController;
     private bool deviceWasDisconnectedAtStart;
 
-    private Controller controller;
+    private HandControlPlatformAPI controller;
 
     public void Start()
     {
@@ -28,27 +28,37 @@ public class GUIHandler : MonoBehaviour {
         playerId = -1;
 
         // Get Leap Motion info.
-        controller = new Controller();
+        controller = new LeapMotionHandControl();
+        controller.Init();
 
         loginCanvasHiddenByController = false;
         selectGameCanvasHiddenByController = false;
 
         // Show warning if device isn't connected.
-        if (!controller.IsConnected)
+        if (!controller.DeviceConnected())
         {
             warningText.text = "Please connect the Leap Motion device to your computer.";
             loginCanvas.gameObject.SetActive(false);
             deviceWasDisconnectedAtStart = true;
         }
-        else {
+        else
+        {
             deviceWasDisconnectedAtStart = false;
+        }
+
+        // Show the load level screen if the player played a level before.
+        if (PlayerPrefs.GetInt("LoadLevel") == 1)
+        {
+            PlayerPrefs.SetInt("LoadLevel", 0);
+            loginCanvas.gameObject.SetActive(false);
+            selectGameCanvas.gameObject.SetActive(true);
         }
     }
 
     // Check the Leap Motion Device.
     public void Update()
     {
-        if (controller.IsConnected)
+        if (controller.DeviceConnected())
         {
             OnLeapMotionConnect();
         }
@@ -138,7 +148,6 @@ public class GUIHandler : MonoBehaviour {
     // Hide the warning text and show every canvas that was hidden when the device was disconnected.
     public void OnLeapMotionConnect()
     {
-        Debug.Log("Connected!");
         warningText.text = "";
 
         if (loginCanvasHiddenByController || deviceWasDisconnectedAtStart)
@@ -158,7 +167,6 @@ public class GUIHandler : MonoBehaviour {
     
     // Hide every canvas that wasn't hidden and show warning text.
     public void OnLeapMotionDisconnect() {
-        Debug.Log("Disconnected!");
         warningText.text = "Leap Motion disconnected, please reconnect it.";
         if (loginCanvas.gameObject.activeSelf)
         {

@@ -3,12 +3,12 @@ using System.Collections;
 
 interface HandControlPlatformAPI
 {
-    void init();
-    void update();
-    bool deviceConnected();
-    Vector3 getThumbTipPosition();
-    Vector3 getIndexTipPosition();
-    Vector3 getMiddleTipPosition();
-    Vector3 getRingTipPosition();
-    Vector3 getPinkyTipPosition();
+    void Init();
+    void Update();
+    bool DeviceConnected();
+    Vector3 GetThumbTipPosition();
+    Vector3 GetIndexTipPosition();
+    Vector3 GetMiddleTipPosition();
+    Vector3 GetRingTipPosition();
+    Vector3 GetPinkyTipPosition();
 }
