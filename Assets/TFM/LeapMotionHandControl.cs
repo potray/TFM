@@ -33,6 +33,11 @@ public class LeapMotionHandControl : HandControlPlatformAPI
         return frame.Hands.Rightmost.Fingers.FingerType(Finger.FingerType.TYPE_RING)[0].TipPosition.ToUnity();
     }
 
+    public Vector3 GetToolTipPosition()
+    {
+        return frame.Tools.Frontmost.TipPosition.ToUnity();
+    }
+
     public Vector3 GetThumbTipPosition()
     {
         return frame.Hands.Rightmost.Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnity();

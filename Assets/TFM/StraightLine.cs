@@ -221,8 +221,7 @@ public class StraightLine : MonoBehaviour {
         checkingForEnd = false;
 
         text.text = endingTest;
-
-        // TODO send info to the server
+        
         // Open string
         string handPositionsString = "{";
 

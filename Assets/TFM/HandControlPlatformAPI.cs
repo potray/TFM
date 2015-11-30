@@ -11,4 +11,5 @@ interface HandControlPlatformAPI
     Vector3 GetMiddleTipPosition();
     Vector3 GetRingTipPosition();
     Vector3 GetPinkyTipPosition();
+    Vector3 GetToolTipPosition();
 }
