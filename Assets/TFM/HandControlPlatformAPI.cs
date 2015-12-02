@@ -12,4 +12,5 @@ interface HandControlPlatformAPI
     Vector3 GetRingTipPosition();
     Vector3 GetPinkyTipPosition();
     Vector3 GetToolTipPosition();
+    bool IsThereAValidTool();
 }

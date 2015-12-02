@@ -153,7 +153,7 @@ public class SimonSays : MonoBehaviour {
             controller.Update();
             // Set the sphere position to the index position.
             sphere.transform.position = new Vector3(- controller.GetIndexTipPosition().x / 10,
-                controller.GetIndexTipPosition().y / 10 + inGameLeapMotion.transform.position.y/2,
+                controller.GetIndexTipPosition().y / 10 + inGameLeapMotion.transform.position.y,
                - controller.GetIndexTipPosition().z / 10 + inGameLeapMotion.transform.position.z);
 
             // Check if the hand is in Leap's field of vision.
@@ -192,6 +192,7 @@ public class SimonSays : MonoBehaviour {
 
         if (totalHooks == maxHooks)
         {
+            text.text = gameEnding;
             EndGame();
         }
         else
@@ -205,7 +206,6 @@ public class SimonSays : MonoBehaviour {
 
     private void EndGame()
     {
-        text.text = gameEnding;
         string[] keys = new string[] {"thumb", "index", "middle", "ring", "pinky" };
         // Open string
         string handPositionsString = "{";

@@ -147,18 +147,20 @@ public class SimonSaysTool : MonoBehaviour {
             instructionsShown = true;
             // Tell the controller to update.
             controller.Update();
-            // Set the sphere position to the index position.
-            sphere.transform.position = new Vector3(- controller.GetToolTipPosition().x / 10,
-                controller.GetToolTipPosition().y / 10 + inGameLeapMotion.transform.position.y/2,
-               - controller.GetToolTipPosition().z / 10 + inGameLeapMotion.transform.position.z);
-
             // Check if the tool is in Leap's field of vision.
-            if (controller.GetToolTipPosition().x != 0 && controller.GetToolTipPosition().y != 0 && controller.GetToolTipPosition().z != 0 && totalHooks != maxHooks)
+            if (controller.IsThereAValidTool())
             {
-                // We have an index, so we add the positions of all fingers and the type to the lists.
-                time += Time.deltaTime;
-                toolPositions.Add(controller.GetToolTipPosition());
-                times.Add(time);
+                sphere.transform.position = new Vector3(-controller.GetToolTipPosition().x / 10,
+                    controller.GetToolTipPosition().y / 10 + inGameLeapMotion.transform.position.y,
+                   -controller.GetToolTipPosition().z / 10 + inGameLeapMotion.transform.position.z);
+
+                if (controller.GetToolTipPosition().x != 0 && controller.GetToolTipPosition().y != 0 && controller.GetToolTipPosition().z != 0 && totalHooks != maxHooks)
+                {
+                    // We have a tool, so we add the positions of all fingers and the type to the lists.
+                    time += Time.deltaTime;
+                    toolPositions.Add(controller.GetToolTipPosition());
+                    times.Add(time);
+                }
             }
         }        
     }

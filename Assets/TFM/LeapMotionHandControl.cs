@@ -52,4 +52,9 @@ public class LeapMotionHandControl : HandControlPlatformAPI
     {
         frame = controller.Frame();
     }
+
+    public bool IsThereAValidTool()
+    {
+        return frame.Tools.Frontmost.IsValid;
+    }
 }
