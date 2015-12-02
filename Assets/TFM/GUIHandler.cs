@@ -10,8 +10,14 @@ public class GUIHandler : MonoBehaviour {
     public Text inputText;
     public Text infoText;
     public Text warningText;
+    public Text straightLineButtonText;
+    public Text simonSaysHandButtonText;
+    public Text simonSaysToolButtonText;
     public Button logInButton;
     public Button confirmButton;
+    public Button straightLineButton;
+    public Button simonSaysHandButton;
+    public Button simonSaysToolButton;
     public Canvas loginCanvas;
     public Canvas selectGameCanvas;
     private int playerId;
@@ -21,6 +27,12 @@ public class GUIHandler : MonoBehaviour {
     private bool deviceWasDisconnectedAtStart;
 
     private HandControlPlatformAPI controller;
+
+    private int diaryStraightLine;
+    private int diarySimonSaysHand;
+    private int diarySimonSaysTool;
+    private int simonSaysHandMaxHooks;
+    private int simonSaysToolMaxHooks;
 
     public void Start()
     {
@@ -114,6 +126,46 @@ public class GUIHandler : MonoBehaviour {
     public void Confirm()
     {
         PlayerPrefs.SetInt("PlayerID", playerId);
+        PlayerPrefs.SetInt("DiaryStraightLine", diaryStraightLine);
+        PlayerPrefs.SetInt("DiarySimonSaysHand", diarySimonSaysHand);
+        PlayerPrefs.SetInt("DiarySimonSaysTool", diarySimonSaysTool);
+        PlayerPrefs.SetInt("SimonSaysHandMaxHooks", simonSaysHandMaxHooks);
+        PlayerPrefs.SetInt("SimonSaysToolMaxHooks", simonSaysToolMaxHooks);
+
+        Debug.Log(straightLineButtonText.text);
+
+        if (diaryStraightLine != -1) {
+            if (diaryStraightLine == 0) {
+                straightLineButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                straightLineButtonText.text = "Straight Line " + diaryStraightLine.ToString();
+            }
+        }
+        if (diarySimonSaysHand != -1)
+        {
+            if (diarySimonSaysHand == 0)
+            {
+                simonSaysHandButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                simonSaysHandButtonText.text = "Simon Says (hand) " + diarySimonSaysHand.ToString();
+            }
+        }
+        if (diarySimonSaysTool != -1)
+        {
+            if (diarySimonSaysTool == 0)
+            {
+                simonSaysToolButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                simonSaysToolButtonText.text = "Simon Says (tool) " + diarySimonSaysTool.ToString();
+            }
+        }
+        
         loginCanvas.gameObject.SetActive(false);
         selectGameCanvas.gameObject.SetActive(true);
     }
@@ -192,6 +244,11 @@ public class GUIHandler : MonoBehaviour {
             var firstName = json["first_name"].Value;
             var lastName = json["last_name"].Value;
             var ok = json["ok"].AsBool;
+            diaryStraightLine = json["diary_straight_line"].AsInt;
+            diarySimonSaysHand = json["diary_simon_says_hand"].AsInt;
+            diarySimonSaysTool = json["diary_simon_says_tool"].AsInt;
+            simonSaysHandMaxHooks = json["simon_says_hand_max_hooks"].AsInt;
+            simonSaysToolMaxHooks = json["simon_says_tool_max_hooks"].AsInt;
             Debug.Log(firstName + " " + lastName + " " + ok);
 
             if (ok)
