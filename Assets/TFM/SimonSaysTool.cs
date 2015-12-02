@@ -33,8 +33,7 @@ public class SimonSaysTool : MonoBehaviour {
     public Text text;
     
     // Game attributes.
-    private int lastHook, totalHooks;
-    public int maxHooks;
+    private int lastHook, totalHooks, maxHooks;
     private List <GameObject> redHooks, blueHooks, redSticks, blueSticks;
 
     // Strings
@@ -71,6 +70,9 @@ public class SimonSaysTool : MonoBehaviour {
 
         if (Settings.debug)
             url = debugurl;
+
+
+        maxHooks = PlayerPrefs.GetInt("simonSaysHandMaxHooks");
     }
     
     // This method resets the game.
