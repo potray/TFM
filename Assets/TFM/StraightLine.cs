@@ -166,10 +166,6 @@ public class StraightLine : MonoBehaviour {
                 }
             }
         }
-        
-       
-
-       
     }
 
     private bool checkDistance (Objects obj)

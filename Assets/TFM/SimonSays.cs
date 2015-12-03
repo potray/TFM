@@ -66,12 +66,13 @@ public class SimonSays : MonoBehaviour {
             text.text = connectDevice;
         }
 
+        maxHooks = PlayerPrefs.GetInt("SimonSaysHandMaxHooks");
+
         Init();
 
         if (Settings.debug)
             url = debugurl;
 
-        maxHooks = PlayerPrefs.GetInt("SimonSaysHandMaxHooks");
             
     }
     

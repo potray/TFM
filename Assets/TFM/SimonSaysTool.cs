@@ -66,13 +66,16 @@ public class SimonSaysTool : MonoBehaviour {
             text.text = connectDevice;
         }
 
+
+        maxHooks = PlayerPrefs.GetInt("SimonSaysHandMaxHooks");
+
         Init();
 
         if (Settings.debug)
             url = debugurl;
 
 
-        maxHooks = PlayerPrefs.GetInt("SimonSaysHandMaxHooks");
+        Debug.Log(maxHooks);
     }
     
     // This method resets the game.
@@ -169,6 +172,7 @@ public class SimonSaysTool : MonoBehaviour {
 
     void selectNextHook ()
     {
+        Debug.Log("Next Hook selected");
         // Generate a valid random number.
         System.Random rnd = new System.Random();
         int i = lastHook;
@@ -178,7 +182,8 @@ public class SimonSaysTool : MonoBehaviour {
         }
 
         totalHooks++;
-        
+
+        Debug.Log(totalHooks);
         // Swap hooks.
         if (lastHook != -1) // Skip the first previous swap
         {
@@ -188,6 +193,7 @@ public class SimonSaysTool : MonoBehaviour {
 
         if (totalHooks == maxHooks)
         {
+            Debug.Log(totalHooks + " == " + maxHooks);
             EndGame();
         }
         else
@@ -201,6 +207,7 @@ public class SimonSaysTool : MonoBehaviour {
 
     private void EndGame()
     {
+
         text.text = gameEnding;
         // Open string
         string positionsString = "{";
