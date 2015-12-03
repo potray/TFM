@@ -72,7 +72,7 @@ public class SimonSaysTool : MonoBehaviour {
             url = debugurl;
 
 
-        maxHooks = PlayerPrefs.GetInt("simonSaysHandMaxHooks");
+        maxHooks = PlayerPrefs.GetInt("SimonSaysHandMaxHooks");
     }
     
     // This method resets the game.

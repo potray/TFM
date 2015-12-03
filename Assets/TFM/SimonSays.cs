@@ -71,7 +71,7 @@ public class SimonSays : MonoBehaviour {
         if (Settings.debug)
             url = debugurl;
 
-        maxHooks = PlayerPrefs.GetInt("simonSaysHandMaxHooks");
+        maxHooks = PlayerPrefs.GetInt("SimonSaysHandMaxHooks");
             
     }
     
