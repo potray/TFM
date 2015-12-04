@@ -140,6 +140,8 @@ public class GUIHandler : MonoBehaviour {
             }
             else
             {
+                // Set it to true in case 2 users use the same computer.
+                straightLineButton.gameObject.SetActive(true);
                 straightLineButtonText.text = "Straight Line " + diaryStraightLine.ToString();
             }
         }
@@ -151,6 +153,8 @@ public class GUIHandler : MonoBehaviour {
             }
             else
             {
+
+                simonSaysHandButton.gameObject.SetActive(true);
                 simonSaysHandButtonText.text = "Simon Says (hand) " + diarySimonSaysHand.ToString();
             }
         }
@@ -162,6 +166,7 @@ public class GUIHandler : MonoBehaviour {
             }
             else
             {
+                simonSaysToolButton.gameObject.SetActive(true);
                 simonSaysToolButtonText.text = "Simon Says (tool) " + diarySimonSaysTool.ToString();
             }
         }
