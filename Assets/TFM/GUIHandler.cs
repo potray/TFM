@@ -132,7 +132,7 @@ public class GUIHandler : MonoBehaviour {
         PlayerPrefs.SetInt("SimonSaysHandMaxHooks", simonSaysHandMaxHooks);
         PlayerPrefs.SetInt("SimonSaysToolMaxHooks", simonSaysToolMaxHooks);
 
-        Debug.Log(straightLineButtonText.text);
+        Debug.Log("Diary SL = " + diaryStraightLine + ", Diary SS = " + diarySimonSaysHand + ", Diary ST = " + diarySimonSaysTool);
 
         if (diaryStraightLine != -1) {
             if (diaryStraightLine == 0) {
@@ -145,6 +145,10 @@ public class GUIHandler : MonoBehaviour {
                 straightLineButtonText.text = "Straight Line " + diaryStraightLine.ToString();
             }
         }
+        else
+        {
+            straightLineButton.gameObject.SetActive(true);
+        }
         if (diarySimonSaysHand != -1)
         {
             if (diarySimonSaysHand == 0)
@@ -153,10 +157,13 @@ public class GUIHandler : MonoBehaviour {
             }
             else
             {
-
                 simonSaysHandButton.gameObject.SetActive(true);
                 simonSaysHandButtonText.text = "Simon Says (hand) " + diarySimonSaysHand.ToString();
             }
+        }
+        else
+        {
+            simonSaysHandButton.gameObject.SetActive(true);
         }
         if (diarySimonSaysTool != -1)
         {
@@ -170,7 +177,10 @@ public class GUIHandler : MonoBehaviour {
                 simonSaysToolButtonText.text = "Simon Says (tool) " + diarySimonSaysTool.ToString();
             }
         }
-        
+        else
+        {
+            simonSaysToolButton.gameObject.SetActive(true);
+        }
         loginCanvas.gameObject.SetActive(false);
         selectGameCanvas.gameObject.SetActive(true);
     }
