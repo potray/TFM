@@ -19,8 +19,6 @@ public class StraightLine : MonoBehaviour {
     public GameObject end;
     public GameObject upperGuide;
     public GameObject lowerGuide;
-    public GameObject yesSphere;
-    public GameObject noSphere;
     public Text text;
 
     // Strings.
