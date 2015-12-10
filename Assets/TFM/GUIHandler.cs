@@ -66,6 +66,8 @@ public class GUIHandler : MonoBehaviour {
             PlayerPrefs.SetInt("LoadLevel", 0);
             loginCanvas.gameObject.SetActive(false);
             selectGameCanvas.gameObject.SetActive(true);
+            LoadPlayerPrefs();
+            ChangeButtons();
         }
     }
 
@@ -79,6 +81,72 @@ public class GUIHandler : MonoBehaviour {
         else
         {
             OnLeapMotionDisconnect();
+        }
+    }
+
+    private void LoadPlayerPrefs()
+    {
+        playerId = PlayerPrefs.GetInt("PlayerID");
+        diaryStraightLine = PlayerPrefs.GetInt("DiaryStraightLine");
+        diarySimonSaysHand = PlayerPrefs.GetInt("DiarySimonSaysHand");
+        diarySimonSaysTool = PlayerPrefs.GetInt("DiarySimonSaysTool");
+        simonSaysHandMaxHooks = PlayerPrefs.GetInt("SimonSaysHandMaxHooks");
+        simonSaysToolMaxHooks = PlayerPrefs.GetInt("SimonSaysToolMaxHooks");
+    }
+
+    private void ChangeButtons()
+    {
+        if (diaryStraightLine != -1)
+        {
+            if (diaryStraightLine == 0)
+            {
+                straightLineButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                // Set it to true in case 2 users use the same computer.
+                straightLineButton.gameObject.SetActive(true);
+                straightLineButtonText.text = "Straight Line\n " + diaryStraightLine.ToString() + " diary tests";
+            }
+        }
+        else
+        {
+            straightLineButton.gameObject.SetActive(true);
+            straightLineButtonText.text = "Straight Line";
+        }
+        if (diarySimonSaysHand != -1)
+        {
+            if (diarySimonSaysHand == 0)
+            {
+                simonSaysHandButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                simonSaysHandButton.gameObject.SetActive(true);
+                simonSaysHandButtonText.text = "Simon Says (hand)\n " + diarySimonSaysHand.ToString() + " diary tests";
+            }
+        }
+        else
+        {
+            simonSaysHandButton.gameObject.SetActive(true);
+            simonSaysHandButtonText.text = "Simon Says (hand)";
+        }
+        if (diarySimonSaysTool != -1)
+        {
+            if (diarySimonSaysTool == 0)
+            {
+                simonSaysToolButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                simonSaysToolButton.gameObject.SetActive(true);
+                simonSaysToolButtonText.text = "Simon Says (tool)\n " + diarySimonSaysTool.ToString() + " diary tests";
+            }
+        }
+        else
+        {
+;            simonSaysToolButtonText.text = "Simon Says (tool)";
+            simonSaysToolButton.gameObject.SetActive(true);
         }
     }
 
@@ -136,53 +204,7 @@ public class GUIHandler : MonoBehaviour {
 
         Debug.Log("Diary SL = " + diaryStraightLine + ", Diary SS = " + diarySimonSaysHand + ", Diary ST = " + diarySimonSaysTool);
 
-        if (diaryStraightLine != -1) {
-            if (diaryStraightLine == 0) {
-                straightLineButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                // Set it to true in case 2 users use the same computer.
-                straightLineButton.gameObject.SetActive(true);
-                straightLineButtonText.text = "Straight Line " + diaryStraightLine.ToString();
-            }
-        }
-        else
-        {
-            straightLineButton.gameObject.SetActive(true);
-        }
-        if (diarySimonSaysHand != -1)
-        {
-            if (diarySimonSaysHand == 0)
-            {
-                simonSaysHandButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                simonSaysHandButton.gameObject.SetActive(true);
-                simonSaysHandButtonText.text = "Simon Says (hand) " + diarySimonSaysHand.ToString();
-            }
-        }
-        else
-        {
-            simonSaysHandButton.gameObject.SetActive(true);
-        }
-        if (diarySimonSaysTool != -1)
-        {
-            if (diarySimonSaysTool == 0)
-            {
-                simonSaysToolButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                simonSaysToolButton.gameObject.SetActive(true);
-                simonSaysToolButtonText.text = "Simon Says (tool) " + diarySimonSaysTool.ToString();
-            }
-        }
-        else
-        {
-            simonSaysToolButton.gameObject.SetActive(true);
-        }
+        ChangeButtons();
         loginCanvas.gameObject.SetActive(false);
         selectGameCanvas.gameObject.SetActive(true);
     }
