@@ -18,6 +18,8 @@ public class GUIHandler : MonoBehaviour {
     public Button straightLineButton;
     public Button simonSaysHandButton;
     public Button simonSaysToolButton;
+    public Button disconncetedExitButton;
+
     public Canvas loginCanvas;
     public Canvas selectGameCanvas;
     private int playerId;
@@ -215,6 +217,7 @@ public class GUIHandler : MonoBehaviour {
     // Hide the warning text and show every canvas that was hidden when the device was disconnected.
     public void OnLeapMotionConnect()
     {
+        disconncetedExitButton.gameObject.SetActive(false);
         warningText.text = "";
 
         if (loginCanvasHiddenByController || deviceWasDisconnectedAtStart)
@@ -234,6 +237,7 @@ public class GUIHandler : MonoBehaviour {
     
     // Hide every canvas that wasn't hidden and show warning text.
     public void OnLeapMotionDisconnect() {
+        disconncetedExitButton.gameObject.SetActive(true);
         warningText.text = "Leap Motion disconnected, please reconnect it.";
         if (loginCanvas.gameObject.activeSelf)
         {
